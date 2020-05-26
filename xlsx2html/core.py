@@ -299,7 +299,7 @@ def get_sheet(wb, sheet):
     return ws
 
 
-def xlsx2html(filepath, output=None, locale='en', sheet=None, parse_formula=False):
+def xlsx2html(filepath, output=None, locale='en', sheet=None, parse_formula=False, table_only=False):
     wb = openpyxl.load_workbook(filepath, data_only=True)
     ws = get_sheet(wb, sheet)
 
@@ -309,7 +309,10 @@ def xlsx2html(filepath, output=None, locale='en', sheet=None, parse_formula=Fals
         fs = get_sheet(fb, sheet)
 
     data = worksheet_to_data(ws, locale=locale, fs=fs)
-    html = render_data_to_html(data)
+    if table_only:
+        html = render_table(data)
+    else:
+        html = render_data_to_html(data)
 
     if not output:
         output = io.StringIO()
