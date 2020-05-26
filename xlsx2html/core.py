@@ -16,6 +16,8 @@ DEFAULT_BORDER_STYLE = {
     'width': '1px',
 }
 
+FONT_MIN_SIZE=None
+
 BORDER_STYLES = {
     'dashDot': None,
     'dashDotDot': None,
@@ -132,6 +134,11 @@ def get_styles_from_cell(cell, merged_cell_map=None):
         h_styles['background-color'] = normalize_color(cell.fill.fgColor)
     if cell.font:
         h_styles['font-size'] = "%spx" % cell.font.sz
+        if FONT_MIN_SIZE != None:            
+            if cell.font.sz < FONT_MIN_SIZE:
+                h_styles['font-size'] = "%spx" % FONT_MIN_SIZE
+            else:
+                h_styles['font-size'] = "%spx" % cell.font.sz
         if cell.font.color:
             h_styles['color'] = normalize_color(cell.font.color)
         if cell.font.b:
@@ -299,7 +306,7 @@ def get_sheet(wb, sheet):
     return ws
 
 
-def xlsx2html(filepath, output=None, locale='en', sheet=None, parse_formula=False, table_only=False):
+def xlsx2html(filepath, output=None, locale='en', sheet=None, parse_formula=False, table_only=False, font_min_size=None):
     wb = openpyxl.load_workbook(filepath, data_only=True)
     ws = get_sheet(wb, sheet)
 
@@ -307,7 +314,9 @@ def xlsx2html(filepath, output=None, locale='en', sheet=None, parse_formula=Fals
     if parse_formula:
         fb = openpyxl.load_workbook(filepath, data_only=False)
         fs = get_sheet(fb, sheet)
-
+    global FONT_MIN_SIZE
+    if font_min_size:
+        FONT_MIN_SIZE = font_min_size        
     data = worksheet_to_data(ws, locale=locale, fs=fs)
     if table_only:
         html = render_table(data)
